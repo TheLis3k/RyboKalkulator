@@ -1,0 +1,21 @@
+dependencies:
+  flutter:
+    sdk: flutter
+  # Ikony
+  cupertino_icons: ^1.0.2
+  # Baza danych (Hive)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  # Generatory
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.1
+  # Stan
+  provider: ^6.0.5
+  # Aparat/Galeria
+  image_picker: ^1.0.4
+  # Pliki
+  path_provider: ^2.1.1
+  # Daty i waluty
+  intl: ^0.18.1
+  # ID
+  uuid: ^4.2.1
