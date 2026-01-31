@@ -26,6 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.point_of_sale), label: 'Sprzedaż'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Historia'),

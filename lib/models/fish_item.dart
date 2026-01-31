@@ -19,11 +19,19 @@ class FishItem extends HiveObject {
   @HiveField(4)
   bool isActive;
 
+  @HiveField(5)
+  String? nameEn;
+
+  @HiveField(6)
+  String? nameDe;
+
   FishItem({
     required this.id,
     required this.name,
     required this.pricePerKg,
     this.imagePath,
     this.isActive = true,
+    this.nameEn,
+    this.nameDe,
   });
 }

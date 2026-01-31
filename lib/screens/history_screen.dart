@@ -49,7 +49,9 @@ class HistoryScreen extends StatelessWidget {
       body: ValueListenableBuilder<Box<Transaction>>(
         valueListenable: Hive.box<Transaction>(DatabaseService.transactionBoxName).listenable(),
         builder: (context, box, _) {
-          final transactions = box.values.toList().cast<Transaction>().reversed.toList();
+          final all = box.values.toList().cast<Transaction>();
+          final transactions = List<Transaction>.from(all)
+            ..sort((a, b) => b.date.compareTo(a.date)); // najnowsze first
 
           double totalCash = 0;
           double totalWeight = 0;
@@ -59,43 +61,33 @@ class HistoryScreen extends StatelessWidget {
           }
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey[900],
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 5))
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      children: [
-                        const Text('UTARG', style: TextStyle(color: Colors.grey)),
-                        Text(
-                          '${totalCash.toStringAsFixed(2)} zł',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.greenAccent),
-                        ),
-                      ],
+                    Text(
+                      '${totalCash.toStringAsFixed(2)} zł',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                    Container(width: 1, height: 40, color: Colors.grey),
-                    Column(
-                      children: [
-                        const Text('WAGA', style: TextStyle(color: Colors.grey)),
-                        Text(
-                          '${totalWeight.toStringAsFixed(3)} kg',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${totalWeight.toStringAsFixed(2)} kg',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Divider(),
+              const Divider(height: 1),
               Expanded(
                 child: transactions.isEmpty
                     ? const Center(child: Text("Brak sprzedaży dzisiaj."))
@@ -110,6 +102,7 @@ class HistoryScreen extends StatelessWidget {
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text('${tr.totalPrice.toStringAsFixed(2)} zł', style: const TextStyle(color: Colors.greenAccent, fontSize: 16)),
                                 Text('${tr.weightInKg.toStringAsFixed(3)} kg', style: const TextStyle(fontSize: 12, color: Colors.grey)),
@@ -118,22 +111,6 @@ class HistoryScreen extends StatelessWidget {
                           );
                         },
                       ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red[900],
-                      foregroundColor: Colors.white,
-                    ),
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('ZAKOŃCZ DZIEŃ (Wyczyść)'),
-                    onPressed: () => _confirmClear(context),
-                  ),
-                ),
               ),
             ],
           );

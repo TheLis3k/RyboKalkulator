@@ -22,13 +22,15 @@ class FishItemAdapter extends TypeAdapter<FishItem> {
       pricePerKg: fields[2] as double,
       imagePath: fields[3] as String?,
       isActive: fields[4] as bool,
+      nameEn: fields[5] as String?,
+      nameDe: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FishItem obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class FishItemAdapter extends TypeAdapter<FishItem> {
       ..writeByte(3)
       ..write(obj.imagePath)
       ..writeByte(4)
-      ..write(obj.isActive);
+      ..write(obj.isActive)
+      ..writeByte(5)
+      ..write(obj.nameEn)
+      ..writeByte(6)
+      ..write(obj.nameDe);
   }
 
   @override
