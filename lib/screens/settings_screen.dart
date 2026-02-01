@@ -36,15 +36,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   GestureDetector(
                     onTap: () async {
-                      final picker = ImagePicker();
-                      final picked = await picker.pickImage(
-                        source: ImageSource
-                            .gallery, // Zmienimy na Camera w wersji na telefon
-                        imageQuality: 50,
-                        maxWidth: 600,
-                      );
-                      if (picked != null) {
-                        setState(() => imagePath = picked.path);
+                      // Sprawdzamy czy jesteśmy na platformie mobilnej
+                      final isMobile = Platform.isAndroid || Platform.isIOS;
+
+                      ImageSource? source;
+
+                      if (isMobile) {
+                        // Na urządzeniach mobilnych pokazujemy dialog wyboru
+                        source = await showDialog<ImageSource>(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                            title: const Text('Wybierz źródło zdjęcia'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.camera_alt),
+                                  title: const Text('Aparat'),
+                                  onTap: () => Navigator.pop(
+                                      dialogContext, ImageSource.camera),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.photo_library),
+                                  title: const Text('Galeria'),
+                                  onTap: () => Navigator.pop(
+                                      dialogContext, ImageSource.gallery),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Na desktopie od razu otwieramy galerię
+                        source = ImageSource.gallery;
+                      }
+
+                      if (source != null) {
+                        try {
+                          final picker = ImagePicker();
+                          final picked = await picker.pickImage(
+                            source: source,
+                            imageQuality: 50,
+                            maxWidth: 600,
+                          );
+                          if (picked != null) {
+                            setState(() => imagePath = picked.path);
+                          }
+                        } catch (e) {
+                          // Obsługa błędu - aparat może nie być dostępny na niektórych platformach (np. Windows)
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  source == ImageSource.camera
+                                      ? 'Aparat nie jest dostępny na tej platformie. Użyj galerii.'
+                                      : 'Nie udało się wybrać zdjęcia.',
+                                ),
+                                backgroundColor: Colors.red,
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                     child: Container(

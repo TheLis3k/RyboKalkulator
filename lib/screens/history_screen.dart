@@ -13,7 +13,8 @@ class HistoryScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Zakończyć dzień?'),
-        content: const Text('To usunie trwale całą dzisiejszą historię sprzedaży. Tej operacji nie można cofnąć.'),
+        content: const Text(
+            'To usunie trwale całą dzisiejszą historię sprzedaży. Tej operacji nie można cofnąć.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -26,7 +27,8 @@ class HistoryScreen extends StatelessWidget {
               await db.clearHistory();
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('USUŃ WSZYSTKO', style: TextStyle(color: Colors.white)),
+            child: const Text('USUŃ WSZYSTKO',
+                style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -47,7 +49,9 @@ class HistoryScreen extends StatelessWidget {
         ],
       ),
       body: ValueListenableBuilder<Box<Transaction>>(
-        valueListenable: Hive.box<Transaction>(DatabaseService.transactionBoxName).listenable(),
+        valueListenable:
+            Hive.box<Transaction>(DatabaseService.transactionBoxName)
+                .listenable(),
         builder: (context, box, _) {
           final all = box.values.toList().cast<Transaction>();
           final transactions = List<Transaction>.from(all)
@@ -96,16 +100,30 @@ class HistoryScreen extends StatelessWidget {
                         itemBuilder: (ctx, i) {
                           final tr = transactions[i];
                           return ListTile(
-                            leading: const Icon(Icons.monetization_on, color: Colors.white54),
-                            title: Text(tr.fishNameSnapshot, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(DateFormat('HH:mm:ss').format(tr.date)),
+                            leading: Icon(Icons.monetization_on,
+                                color: Theme.of(context).colorScheme.primary),
+                            title: Text(tr.fishNameSnapshot,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle:
+                                Text(DateFormat('HH:mm:ss').format(tr.date)),
                             trailing: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text('${tr.totalPrice.toStringAsFixed(2)} zł', style: const TextStyle(color: Colors.greenAccent, fontSize: 16)),
-                                Text('${tr.weightInKg.toStringAsFixed(3)} kg', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                Text(
+                                  '${tr.totalPrice.toStringAsFixed(2)} zł',
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text('${tr.weightInKg.toStringAsFixed(3)} kg',
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey)),
                               ],
                             ),
                           );

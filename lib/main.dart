@@ -35,26 +35,46 @@ class RyboApp extends StatelessWidget {
 
   static ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
+
+    // Kolor akcentu - zielona obramówka z ikony
+    const tealAccent = Color(0xFF52B69A);
+
     return ThemeData(
       brightness: brightness,
-      primarySwatch: Colors.blue,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: tealAccent,
+        brightness: brightness,
+        primary: tealAccent,
+        secondary: tealAccent,
+      ),
       useMaterial3: true,
       textTheme: const TextTheme(
         bodyMedium: TextStyle(fontSize: 16.0),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         toolbarHeight: 44,
         centerTitle: true,
         scrolledUnderElevation: 4,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        foregroundColor: isDark ? Colors.white : Colors.black87,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         elevation: 8,
-        backgroundColor: isDark ? Colors.grey[900] : Colors.grey[200],
-        selectedItemColor: isDark ? Colors.blue[300] : Colors.blue[700],
-        unselectedItemColor: isDark ? Colors.grey[500] : Colors.grey[600],
+        backgroundColor:
+            isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF5F5F5),
+        selectedItemColor: tealAccent,
+        unselectedItemColor: isDark ? Colors.grey[600] : Colors.grey[500],
         type: BottomNavigationBarType.fixed,
         unselectedIconTheme: const IconThemeData(size: 24),
         selectedIconTheme: const IconThemeData(size: 26),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: tealAccent,
+        foregroundColor: Colors.white,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 2,
+        color: isDark ? const Color(0xFF2A2A2A) : Colors.white,
       ),
     );
   }

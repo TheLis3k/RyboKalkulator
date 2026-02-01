@@ -84,7 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onSelectionChanged: (Set<String> selected) {
             localeService.setLocale(Locale(selected.first));
           },
-          style: ButtonStyle(
+          style: const ButtonStyle(
             visualDensity: VisualDensity.compact,
           ),
         ),
@@ -211,19 +211,22 @@ class _WeighingDialogState extends State<_WeighingDialog> {
   void _onKey(String key) {
     setState(() {
       if (key == '⌫') {
-        if (_weightStr.isNotEmpty)
+        if (_weightStr.isNotEmpty) {
           _weightStr = _weightStr.substring(0, _weightStr.length - 1);
+        }
         return;
       }
       if (key == ',' || key == '.') {
-        if (!_weightStr.contains('.') && !_weightStr.contains(','))
+        if (!_weightStr.contains('.') && !_weightStr.contains(',')) {
           _weightStr += ',';
+        }
         return;
       }
-      if (_weightStr == '0' && key != ',')
+      if (_weightStr == '0' && key != ',') {
         _weightStr = key;
-      else
+      } else {
         _weightStr += key;
+      }
     });
   }
 
