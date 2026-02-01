@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/fish_item.dart';
 import '../services/database_service.dart';
-import '../services/locale_service.dart';
 import '../services/theme_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -20,7 +19,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final nameController = TextEditingController(text: fish?.name ?? '');
     final nameEnController = TextEditingController(text: fish?.nameEn ?? '');
     final nameDeController = TextEditingController(text: fish?.nameDe ?? '');
-    final priceController = TextEditingController(text: fish?.pricePerKg.toString() ?? '');
+    final priceController =
+        TextEditingController(text: fish?.pricePerKg.toString() ?? '');
     String? imagePath = fish?.imagePath;
     final isEditing = fish != null;
 
@@ -38,7 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () async {
                       final picker = ImagePicker();
                       final picked = await picker.pickImage(
-                        source: ImageSource.gallery, // Zmienimy na Camera w wersji na telefon
+                        source: ImageSource
+                            .gallery, // Zmienimy na Camera w wersji na telefon
                         imageQuality: 50,
                         maxWidth: 600,
                       );
@@ -71,16 +72,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   TextField(
                     controller: nameEnController,
-                    decoration: const InputDecoration(labelText: 'Nazwa po angielsku'),
+                    decoration:
+                        const InputDecoration(labelText: 'Nazwa po angielsku'),
                   ),
                   TextField(
                     controller: nameDeController,
-                    decoration: const InputDecoration(labelText: 'Nazwa po niemiecku'),
+                    decoration:
+                        const InputDecoration(labelText: 'Nazwa po niemiecku'),
                   ),
                   TextField(
                     controller: priceController,
-                    decoration: const InputDecoration(labelText: 'Cena za kg (PLN)'),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration:
+                        const InputDecoration(labelText: 'Cena za kg (PLN)'),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                   ),
                 ],
               ),
@@ -93,9 +98,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ElevatedButton(
                 onPressed: () {
                   final name = nameController.text;
-                  final nameEn = nameEnController.text.trim().isEmpty ? null : nameEnController.text.trim();
-                  final nameDe = nameDeController.text.trim().isEmpty ? null : nameDeController.text.trim();
-                  final price = double.tryParse(priceController.text.replaceAll(',', '.')) ?? 0.0;
+                  final nameEn = nameEnController.text.trim().isEmpty
+                      ? null
+                      : nameEnController.text.trim();
+                  final nameDe = nameDeController.text.trim().isEmpty
+                      ? null
+                      : nameDeController.text.trim();
+                  final price = double.tryParse(
+                          priceController.text.replaceAll(',', '.')) ??
+                      0.0;
 
                   if (name.isEmpty || price <= 0) return;
 
@@ -119,10 +130,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     db.addFish(newFish);
                   }
-                  
+
                   // Wymuszamy odświeżenie widoku
                   (context as Element).markNeedsBuild();
-                  setState(() {}); // Odśwież dialog (niepotrzebne, ale bezpieczne)
+                  setState(
+                      () {}); // Odśwież dialog (niepotrzebne, ale bezpieczne)
                   Navigator.pop(context);
                   // Odśwież główny ekran
                   this.setState(() {});
@@ -140,7 +152,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final db = context.watch<DatabaseService>();
     final themeService = context.watch<ThemeService>();
-    final localeService = context.watch<LocaleService>();
     final fishList = db.getAllFish();
 
     return Scaffold(
@@ -172,23 +183,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: SegmentedButton<String>(
-              segments: const [
-                ButtonSegment<String>(value: 'pl', label: Text('PL')),
-                ButtonSegment<String>(value: 'en', label: Text('EN')),
-                ButtonSegment<String>(value: 'de', label: Text('DE')),
-              ],
-              selected: {localeService.languageCode},
-              onSelectionChanged: (Set<String> selected) {
-                localeService.setLocale(Locale(selected.first));
-              },
-            ),
-          ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Text('Twoje ryby', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text('Twoje ryby',
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           ...List.generate(fishList.length, (index) {
             final fish = fishList[index];
@@ -196,7 +194,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               margin: const EdgeInsets.all(8),
               child: ListTile(
                 leading: fish.imagePath != null
-                    ? Image.file(File(fish.imagePath!), width: 50, height: 50, fit: BoxFit.cover)
+                    ? Image.file(File(fish.imagePath!),
+                        width: 50, height: 50, fit: BoxFit.cover)
                     : const Icon(Icons.set_meal),
                 title: Text(fish.name),
                 subtitle: Text('${fish.pricePerKg.toStringAsFixed(2)} zł/kg'),

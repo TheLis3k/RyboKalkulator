@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/fish_item.dart';
-import '../models/transaction.dart' as model; // alias bo konflikt nazw z biblioteką
+import '../models/transaction.dart'
+    as model; // alias bo konflikt nazw z biblioteką
 import '../services/database_service.dart';
+import '../services/locale_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,7 +16,6 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  
   void _showWeighingDialog(BuildContext context, FishItem fish) {
     final db = context.read<DatabaseService>();
 
@@ -45,6 +46,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     // Pobieramy bazę
     final db = context.read<DatabaseService>();
+    // Pobieramy aktualny język
+    final localeService = context.watch<LocaleService>();
+    final languageCode = localeService.languageCode;
     // Pobieramy listę ryb (tylko aktywne)
     final fishList = db.getAllFish();
 
@@ -70,7 +74,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sprzedaż'),
+        title: SegmentedButton<String>(
+          segments: const [
+            ButtonSegment<String>(value: 'pl', label: Text('PL')),
+            ButtonSegment<String>(value: 'en', label: Text('EN')),
+            ButtonSegment<String>(value: 'de', label: Text('DE')),
+          ],
+          selected: {localeService.languageCode},
+          onSelectionChanged: (Set<String> selected) {
+            localeService.setLocale(Locale(selected.first));
+          },
+          style: ButtonStyle(
+            visualDensity: VisualDensity.compact,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -110,7 +127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: fish.imagePath != null
                               ? Image.file(
                                   File(fish.imagePath!),
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 )
                               : Container(
                                   color: Colors.grey[800],
@@ -133,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    fish.name,
+                                    fish.getLocalizedName(languageCode),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -194,15 +211,19 @@ class _WeighingDialogState extends State<_WeighingDialog> {
   void _onKey(String key) {
     setState(() {
       if (key == '⌫') {
-        if (_weightStr.isNotEmpty) _weightStr = _weightStr.substring(0, _weightStr.length - 1);
+        if (_weightStr.isNotEmpty)
+          _weightStr = _weightStr.substring(0, _weightStr.length - 1);
         return;
       }
       if (key == ',' || key == '.') {
-        if (!_weightStr.contains('.') && !_weightStr.contains(',')) _weightStr += ',';
+        if (!_weightStr.contains('.') && !_weightStr.contains(','))
+          _weightStr += ',';
         return;
       }
-      if (_weightStr == '0' && key != ',') _weightStr = key;
-      else _weightStr += key;
+      if (_weightStr == '0' && key != ',')
+        _weightStr = key;
+      else
+        _weightStr += key;
     });
   }
 
@@ -229,7 +250,8 @@ class _WeighingDialogState extends State<_WeighingDialog> {
     final isCompact = size.height < 600;
 
     return Dialog(
-      insetPadding: EdgeInsets.symmetric(vertical: size.height * 0.04, horizontal: 12),
+      insetPadding:
+          EdgeInsets.symmetric(vertical: size.height * 0.04, horizontal: 12),
       child: SizedBox(
         height: dialogHeight,
         child: Material(
@@ -239,7 +261,8 @@ class _WeighingDialogState extends State<_WeighingDialog> {
               children: [
                 // Nazwa ryby | Cena za kg (np. 22,31) | X
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, isCompact ? 4 : 8, 4, isCompact ? 4 : 8),
+                  padding: EdgeInsets.fromLTRB(
+                      16, isCompact ? 4 : 8, 4, isCompact ? 4 : 8),
                   child: Row(
                     children: [
                       Expanded(
@@ -253,7 +276,9 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                         ),
                       ),
                       Text(
-                        widget.fish.pricePerKg.toStringAsFixed(2).replaceAll('.', ','),
+                        widget.fish.pricePerKg
+                            .toStringAsFixed(2)
+                            .replaceAll('.', ','),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           fontSize: isCompact ? 14 : 16,
@@ -265,7 +290,8 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                         icon: const Icon(Icons.close),
                         iconSize: isCompact ? 28 : 32,
                         style: IconButton.styleFrom(
-                          minimumSize: Size(isCompact ? 40 : 48, isCompact ? 40 : 48),
+                          minimumSize:
+                              Size(isCompact ? 40 : 48, isCompact ? 40 : 48),
                         ),
                       ),
                     ],
@@ -274,7 +300,8 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                 const Divider(height: 1),
                 // Cena wyliczona zł (kolor) + liczba kg + waga wpisana
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, isCompact ? 6 : 12, 16, isCompact ? 6 : 12),
+                  padding: EdgeInsets.fromLTRB(
+                      16, isCompact ? 6 : 12, 16, isCompact ? 6 : 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -322,33 +349,43 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                           children: List.generate(4, (rowIndex) {
                             return Expanded(
                               child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: isCompact ? 2 : 4),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: isCompact ? 2 : 4),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: List.generate(3, (colIndex) {
                                     final key = keys[rowIndex][colIndex];
                                     return SizedBox(
                                       width: btnW,
                                       child: Material(
                                         color: key == '⌫'
-                                            ? theme.colorScheme.surfaceContainerHighest
-                                            : theme.colorScheme.surfaceContainerHigh,
+                                            ? theme.colorScheme
+                                                .surfaceContainerHighest
+                                            : theme.colorScheme
+                                                .surfaceContainerHigh,
                                         borderRadius: BorderRadius.circular(10),
                                         child: InkWell(
                                           onTap: () => _onKey(key),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           child: Center(
                                             child: key == '⌫'
                                                 ? Icon(
                                                     Icons.backspace_outlined,
-                                                    color: theme.colorScheme.onSurface,
+                                                    color: theme
+                                                        .colorScheme.onSurface,
                                                     size: isCompact ? 22 : 28,
                                                   )
                                                 : Text(
                                                     key,
-                                                    style: theme.textTheme.titleLarge?.copyWith(
-                                                      fontWeight: FontWeight.w500,
-                                                      fontSize: isCompact ? 20 : 24,
+                                                    style: theme
+                                                        .textTheme.titleLarge
+                                                        ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize:
+                                                          isCompact ? 20 : 24,
                                                     ),
                                                   ),
                                           ),
@@ -375,7 +412,8 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                         child: OutlinedButton(
                           onPressed: () => setState(() => _weightStr = ''),
                           style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: isCompact ? 12 : 16),
+                            padding: EdgeInsets.symmetric(
+                                vertical: isCompact ? 12 : 16),
                           ),
                           child: const Text('Wyczyść'),
                         ),
@@ -383,9 +421,11 @@ class _WeighingDialogState extends State<_WeighingDialog> {
                       SizedBox(width: isCompact ? 12 : 16),
                       Expanded(
                         child: FilledButton(
-                          onPressed: _weight != null && _weight! > 0 ? _save : null,
+                          onPressed:
+                              _weight != null && _weight! > 0 ? _save : null,
                           style: FilledButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: isCompact ? 12 : 16),
+                            padding: EdgeInsets.symmetric(
+                                vertical: isCompact ? 12 : 16),
                           ),
                           child: const Text('Zapisz'),
                         ),

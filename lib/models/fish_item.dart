@@ -34,4 +34,17 @@ class FishItem extends HiveObject {
     this.nameEn,
     this.nameDe,
   });
+
+  /// Zwraca nazwę ryby w odpowiednim języku.
+  /// Jeśli tłumaczenie nie istnieje, zwraca polską nazwę.
+  String getLocalizedName(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return nameEn ?? name;
+      case 'de':
+        return nameDe ?? name;
+      default:
+        return name;
+    }
+  }
 }
